@@ -357,8 +357,18 @@ function renderGame() {
 }
 
 function toggleOpen(i) {
+  // Save all current input values before re-rendering
+  players.forEach((p, j) => {
+    const input = document.getElementById(`pts-${j}`);
+    if (input) p._inputVal = input.value;
+  });
   players[i].opened = !players[i].opened;
   renderGame();
+  // Restore input values after re-render
+  players.forEach((p, j) => {
+    const input = document.getElementById(`pts-${j}`);
+    if (input && p._inputVal) input.value = p._inputVal;
+  });
 }
 
 // ── NEXT ROUND ──
