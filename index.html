@@ -555,7 +555,15 @@ function startPollingPlayer() {
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
+      // Préserver les valeurs locales du joueur courant
+      const localOpened = players[myPlayerId]?.opened;
+      const localRoundPts = players[myPlayerId]?.roundPts;
       applyState(state);
+      if (myPlayerId !== null) {
+        // Garder l'état local s'il est plus récent (optimistic update)
+        if (localOpened !== undefined) players[myPlayerId].opened = localOpened;
+        if (localRoundPts !== undefined) players[myPlayerId].roundPts = localRoundPts;
+      }
       renderPlayerView();
     } catch(e) {}
   }, 3000);
@@ -571,6 +579,8 @@ function applyState(state) {
 }
 
 // ── VUE JOUEUR ──
+let playerViewInitialized = false;
+
 function renderPlayerView() {
   if (myPlayerId === null) return;
   const p = players[myPlayerId];
@@ -582,33 +592,49 @@ function renderPlayerView() {
   const ch = CHALLENGES.find(c => c.year === p.year);
   const isDealer = (dealerIndex % players.length) === myPlayerId;
 
-  document.getElementById('my-card').innerHTML = `
-    <div class="pc-header">
-      <div class="pc-emoji" style="font-size:2rem">${p.emoji}</div>
-      <div>
-        <div class="pc-name" style="font-size:1.3rem">${p.name}${isDealer ? '<span class="dealer-tag">Donne</span>' : ''}</div>
+  // Première fois : créer toute la carte
+  if (!playerViewInitialized) {
+    document.getElementById('my-card').innerHTML = `
+      <div class="pc-header">
+        <div class="pc-emoji" style="font-size:2rem">${p.emoji}</div>
+        <div><div class="pc-name" style="font-size:1.3rem" id="my-name-label">${p.name}${isDealer ? '<span class="dealer-tag">Donne</span>' : ''}</div></div>
+        <div class="pc-year-row">
+          <span class="pc-year" style="font-size:.95rem" id="my-year-label">📚 Année ${p.year}</span>
+        </div>
       </div>
-      <div class="pc-year-row">
-        <span class="pc-year" style="font-size:.95rem">📚 Année ${p.year}</span>
+      <div class="pc-stats" style="margin-bottom:.7rem">
+        <div class="stat-box">
+          <div class="stat-label">Points total</div>
+          <div class="stat-value" style="font-size:1.4rem" id="my-total-pts">${p.totalPts}</div>
+        </div>
       </div>
-    </div>
-    <div class="pc-stats" style="margin-bottom:.7rem">
-      <div class="stat-box">
-        <div class="stat-label">Points total</div>
-        <div class="stat-value" style="font-size:1.4rem">${p.totalPts}</div>
-      </div>
-    </div>
-    <input class="pts-input" id="my-pts-input" type="tel" inputmode="numeric" pattern="[0-9]*"
-      placeholder="Points restants ce tour…" value="${p.roundPts || ''}"
-      oninput="saveMyPts()" style="font-size:1.1rem;padding:.5rem .8rem;margin-bottom:.7rem">
-    <div class="pc-actions">
-      <button class="btn-open ${p.opened ? 'active' : ''}" onclick="toggleMyOpen()"
-        style="padding:.6rem;font-size:1rem">
-        ${p.opened ? '✓ A ouvert !' : '🎯 A ouvert ?'}
-      </button>
-    </div>
-  `;
+      <input class="pts-input" id="my-pts-input" type="tel" inputmode="numeric" pattern="[0-9]*"
+        placeholder="Points restants ce tour…"
+        oninput="saveMyPts()" style="font-size:1.1rem;padding:.5rem .8rem;margin-bottom:.7rem">
+      <div class="pc-actions">
+        <button class="btn-open" id="my-open-btn" onclick="toggleMyOpen()"
+          style="padding:.6rem;font-size:1rem">🎯 A ouvert ?</button>
+      </div>`;
+    playerViewInitialized = true;
+  }
+
+  // Mise à jour ciblée des éléments (sans toucher à l'input ni recréer le bouton)
+  const yearLabel = document.getElementById('my-year-label');
+  if (yearLabel) yearLabel.textContent = `📚 Année ${p.year}`;
+
+  const totalPts = document.getElementById('my-total-pts');
+  if (totalPts) totalPts.textContent = p.totalPts;
+
+  const openBtn = document.getElementById('my-open-btn');
+  if (openBtn) {
+    openBtn.textContent = p.opened ? '✓ A ouvert !' : '🎯 A ouvert ?';
+    openBtn.className = `btn-open${p.opened ? ' active' : ''}`;
+  }
   document.getElementById('my-card').className = `player-card${p.opened ? ' opened' : ''}`;
+
+  // Réinitialiser la vue si nouveau tour (année a changé)
+  const nameLabel = document.getElementById('my-name-label');
+  if (nameLabel) nameLabel.innerHTML = `${p.name}${isDealer ? '<span class="dealer-tag">Donne</span>' : ''}`;
 
   if (ch) {
     document.getElementById('my-challenge').innerHTML = `
@@ -616,8 +642,7 @@ function renderPlayerView() {
         <span>Mon défi — Année ${ch.year}</span>
         <span class="ch-cards">${ch.cards} cartes</span>
       </div>
-      <div class="ch-body">${ch.desc}</div>
-    `;
+      <div class="ch-body">${ch.desc}</div>`;
   }
 
   document.getElementById('sync-status').textContent = '✓ Synchronisé • ' + new Date().toLocaleTimeString('fr-CA', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -888,7 +913,7 @@ function startCelebration() {
 // ── RESET ──
 function confirmReset() { if(confirm('Recommencer une nouvelle partie ?')) resetGame(); }
 function resetGame() {
-  stopPolling(); sessionCode=null; myPlayerId=null;
+  stopPolling(); sessionCode=null; myPlayerId=null; playerViewInitialized=false;
   const canvas=document.getElementById('celebration-canvas');
   canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
   showHome();
