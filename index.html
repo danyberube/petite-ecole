@@ -607,11 +607,13 @@ function renderPlayerView() {
       </div>
       <input class="pts-input" id="my-pts-input" type="tel" inputmode="numeric" pattern="[0-9]*"
         placeholder="Points restants ce tour…"
-        oninput="saveMyPts()" style="font-size:1.1rem;padding:.5rem .8rem;margin-bottom:.7rem">
+        style="font-size:1.1rem;padding:.5rem .8rem;margin-bottom:.7rem">
       <div class="pc-actions">
-        <button class="btn-open" id="my-open-btn" onclick="toggleMyOpen()"
+        <button class="btn-open" id="my-open-btn"
           style="padding:.6rem;font-size:1rem">🎯 A ouvert ?</button>
       </div>`;
+    document.getElementById('my-open-btn').addEventListener('click', toggleMyOpen);
+    document.getElementById('my-pts-input').addEventListener('input', saveMyPts);
     playerViewInitialized = true;
   }
 
@@ -658,7 +660,6 @@ async function saveMyPts() {
 }
 
 async function toggleMyOpen() {
-  alert('toggleMyOpen appelé! myPlayerId=' + myPlayerId + ' sessionCode=' + sessionCode);
   if (!sessionCode || myPlayerId === null) return;
   // Mise à jour optimiste locale immédiate
   players[myPlayerId].opened = !players[myPlayerId].opened;
