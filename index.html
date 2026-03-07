@@ -105,12 +105,16 @@
 
   /* ── CHALLENGES MODAL (FULLSCREEN) ── */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:200;
-    align-items:center; justify-content:center; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+    align-items:center; justify-content:center;
+    padding:env(safe-area-inset-top) .5rem env(safe-area-inset-bottom); }
   .modal-overlay.open { display:flex; }
 
   .modal-box {
-    background:white; border-radius:24px; width:calc(100% - 2rem); max-width:680px;
-    height:90vh; display:flex; flex-direction:column;
+    background:white; border-radius:24px; width:100%;
+    max-width:680px;
+    height:calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2rem);
+    max-height:100%;
+    display:flex; flex-direction:column;
     box-shadow:0 8px 50px rgba(0,0,0,.25); animation:zoomIn .2s ease;
   }
   @keyframes zoomIn { from{transform:scale(.94);opacity:0} to{transform:scale(1);opacity:1} }
@@ -378,7 +382,7 @@ function renderGame() {
             <div class="stat-value" id="pts-total-${i}">${p.totalPts}</div>
           </div>
         </div>
-        <input class="pts-input" id="pts-${i}" type="number" min="0"
+        <input class="pts-input" id="pts-${i}" type="tel"
           inputmode="numeric" pattern="[0-9]*"
           placeholder="Points restants ce tour…">
         <div class="pc-actions">
@@ -455,7 +459,7 @@ function toggleOpen(i) {
 // ── NEXT ROUND ──
 function nextRound() {
   players.forEach((p, i) => {
-    const val = parseInt(document.getElementById(`pts-${i}`)?.value) || 0;
+    const val = parseInt(document.getElementById(`pts-${i}`)?.value.replace(/\D/g,'')) || 0;
     p.totalPts += val;
     p._inputVal = '';
   });
