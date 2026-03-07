@@ -555,27 +555,22 @@ function startPollingPlayer() {
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
-      // Préserver les valeurs locales du joueur courant
-      const localOpened = players[myPlayerId]?.opened;
-      const localRoundPts = players[myPlayerId]?.roundPts;
-      applyState(state);
-      if (myPlayerId !== null) {
-        // Garder l'état local s'il est plus récent (optimistic update)
-        if (localOpened !== undefined) players[myPlayerId].opened = localOpened;
-        if (localRoundPts !== undefined) players[myPlayerId].roundPts = localRoundPts;
-      }
+      applyState(state, true);
       renderPlayerView();
     } catch(e) {}
   }, 3000);
 }
-function applyState(state) {
+function applyState(state, preserveMyPlayer = false) {
+  const myOpenedBefore = preserveMyPlayer && myPlayerId !== null ? players[myPlayerId]?.opened : undefined;
+  const myRoundPtsBefore = preserveMyPlayer && myPlayerId !== null ? players[myPlayerId]?.roundPts : undefined;
   players = state.players.map(p => ({ ...p, _inputVal: '' }));
   round = state.round;
   dealerIndex = state.dealerIndex;
-  if (state.phase === 'finished') {
-    stopPolling();
-    showWin();
+  if (preserveMyPlayer && myPlayerId !== null) {
+    if (myOpenedBefore !== undefined) players[myPlayerId].opened = myOpenedBefore;
+    if (myRoundPtsBefore !== undefined) players[myPlayerId].roundPts = myRoundPtsBefore;
   }
+  if (state.phase === 'finished') { stopPolling(); showWin(); }
 }
 
 // ── VUE JOUEUR ──
