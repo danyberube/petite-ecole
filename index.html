@@ -551,13 +551,12 @@ function startPollingHost() {
 function startPollingPlayer() {
   stopPolling();
   pollInterval = setInterval(async () => {
-    if (!sessionCode) return;
+    if (!sessionCode || pausePolling) return;
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
-      console.log('poll: serveur opened =', state.players?.[myPlayerId]?.opened, '| local opened =', players[myPlayerId]?.opened);
+      if (pausePolling) return; // vérifier encore après le fetch async
       applyState(state, true);
-      console.log('poll après applyState: opened =', players[myPlayerId]?.opened);
       renderPlayerView();
     } catch(e) {}
   }, 3000);
@@ -659,22 +658,22 @@ async function saveMyPts() {
   } catch(e) {}
 }
 
+let pausePolling = false;
+
 async function toggleMyOpen() {
   if (!sessionCode || myPlayerId === null) return;
-  // Mise à jour optimiste locale immédiate
-  players[myPlayerId].opened = !players[myPlayerId].opened;
-  console.log('toggleMyOpen: opened =', players[myPlayerId].opened);
+  const newOpened = !players[myPlayerId].opened;
+  players[myPlayerId].opened = newOpened;
+  pausePolling = true; // bloquer le polling pendant l'envoi
   renderPlayerView();
-  // Envoyer au serveur en arrière-plan
   try {
-    const res = await fetch(`${WORKER_URL}/session/${sessionCode}/player/${myPlayerId}`, {
+    await fetch(`${WORKER_URL}/session/${sessionCode}/player/${myPlayerId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ opened: players[myPlayerId].opened }),
+      body: JSON.stringify({ opened: newOpened }),
     });
-    const data = await res.json();
-    console.log('toggleMyOpen serveur réponse opened =', data.players?.[myPlayerId]?.opened);
-  } catch(e) { console.log('toggleMyOpen erreur', e); }
+  } catch(e) {}
+  pausePolling = false;
 }
 
 // ── TABS ──
