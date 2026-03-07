@@ -557,7 +557,17 @@ function startPollingHost() {
         // Préserver roundPts seulement pour l'input actif
         if (i === activeIdx) p.roundPts = activeVal;
       });
-      if (!isTyping) renderGame();
+      if (!isTyping) {
+        renderGame();
+      } else {
+        // Mettre à jour seulement les valeurs affichées sans recréer les inputs
+        players.forEach((p, i) => {
+          const totalEl = document.getElementById(`pts-total-${i}`);
+          if (totalEl && !totalEl.querySelector('input')) totalEl.textContent = p.totalPts;
+          const ptsInput = document.getElementById(`pts-${i}`);
+          if (ptsInput && i !== activeIdx) ptsInput.value = p.roundPts || '';
+        });
+      }
     } catch(e) {}
   }, 3000);
 }
