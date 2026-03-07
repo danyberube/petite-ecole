@@ -555,7 +555,9 @@ function startPollingPlayer() {
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
+      console.log('poll: serveur opened =', state.players?.[myPlayerId]?.opened, '| local opened =', players[myPlayerId]?.opened);
       applyState(state, true);
+      console.log('poll après applyState: opened =', players[myPlayerId]?.opened);
       renderPlayerView();
     } catch(e) {}
   }, 3000);
@@ -659,15 +661,18 @@ async function toggleMyOpen() {
   if (!sessionCode || myPlayerId === null) return;
   // Mise à jour optimiste locale immédiate
   players[myPlayerId].opened = !players[myPlayerId].opened;
+  console.log('toggleMyOpen: opened =', players[myPlayerId].opened);
   renderPlayerView();
   // Envoyer au serveur en arrière-plan
   try {
-    await fetch(`${WORKER_URL}/session/${sessionCode}/player/${myPlayerId}`, {
+    const res = await fetch(`${WORKER_URL}/session/${sessionCode}/player/${myPlayerId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ opened: players[myPlayerId].opened }),
     });
-  } catch(e) {}
+    const data = await res.json();
+    console.log('toggleMyOpen serveur réponse opened =', data.players?.[myPlayerId]?.opened);
+  } catch(e) { console.log('toggleMyOpen erreur', e); }
 }
 
 // ── TABS ──
