@@ -560,13 +560,22 @@ function startPollingHost() {
 }
 function startPollingPlayer() {
   stopPolling();
+  let lastRound = round;
   pollInterval = setInterval(async () => {
     if (!sessionCode || pausePolling) return;
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
-      if (pausePolling) return; // vérifier encore après le fetch async
-      applyState(state, true);
+      if (pausePolling) return;
+      const roundChanged = state.round !== lastRound;
+      applyState(state, !roundChanged);
+      if (roundChanged) {
+        // Nouveau tour — vider l'input de points
+        lastRound = state.round;
+        const input = document.getElementById('my-pts-input');
+        if (input) input.value = '';
+        players[myPlayerId].roundPts = 0;
+      }
       renderPlayerView();
     } catch(e) {}
   }, 3000);
