@@ -539,11 +539,14 @@ function stopPolling() {
 function startPollingHost() {
   stopPolling();
   pollInterval = setInterval(async () => {
-    if (!sessionCode) return;
+    if (!sessionCode || pausePolling) return;
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
+      // Préserver les opened locaux (optimistic update)
+      const localOpened = players.map(p => p.opened);
       applyState(state);
+      players.forEach((p, i) => { if (localOpened[i]) p.opened = localOpened[i]; });
       renderGame();
     } catch(e) {}
   }, 3000);
@@ -778,10 +781,21 @@ function confirmTotalPts(i) {
 function cancelTotalPts(i, original) {
   const el = document.getElementById(`pts-total-${i}`); if (el) el.innerHTML = original;
 }
-function toggleOpen(i) {
+async function toggleOpen(i) {
   saveInputs();
-  players[i].opened = !players[i].opened;
+  const newOpened = !players[i].opened;
+  players[i].opened = newOpened;
   renderGame();
+  if (sessionCode && myPlayerId === null) {
+    // Mode en ligne — synchroniser avec le serveur
+    try {
+      await fetch(`${WORKER_URL}/session/${sessionCode}/player/${i}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ opened: newOpened }),
+      });
+    } catch(e) { showToast('Erreur de synchronisation'); }
+  }
 }
 
 // ── NEXT ROUND ──
