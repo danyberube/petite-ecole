@@ -23,11 +23,13 @@
     --shadow: 0 4px 20px rgba(0,0,0,0.10);
   }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text); min-height:100vh;
-    min-height: -webkit-fill-available;
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-top: env(safe-area-inset-top);
-    background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(45,106,79,.03) 40px,rgba(45,106,79,.03) 80px); }
+  body {
+    font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; min-height:-webkit-fill-available;
+    padding-bottom:env(safe-area-inset-bottom);
+    padding-top:env(safe-area-inset-top);
+    background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(45,106,79,.03) 40px,rgba(45,106,79,.03) 80px);
+  }
 
   h1 { font-family:'Fredoka One',cursive; font-size:2.6rem; color:var(--green); text-align:center;
     padding:1.4rem 1rem .2rem; text-shadow:3px 3px 0 var(--green-pale); }
@@ -71,7 +73,11 @@
   .pc-name { font-family:'Fredoka One',cursive; font-size:1.1rem; color:var(--green); }
   .dealer-tag { background:var(--yellow); color:white; font-size:.65rem; font-weight:900; border-radius:6px;
     padding:.1rem .4rem; margin-left:.3rem; text-transform:uppercase; }
-  .pc-year { margin-left:auto; background:var(--green-pale); color:var(--green); border-radius:20px; padding:.15rem .7rem; font-weight:800; font-size:.82rem; }
+  .pc-year-row { margin-left:auto; display:flex; align-items:center; gap:.4rem; }
+  .pc-year { background:var(--green-pale); color:var(--green); border-radius:20px; padding:.15rem .7rem; font-weight:800; font-size:.82rem; }
+  .btn-year-adj { background:none; border:none; font-size:1rem; cursor:pointer; color:var(--green-light);
+    padding:0 .1rem; line-height:1; transition:transform .1s; }
+  .btn-year-adj:hover { color:var(--green); transform:scale(1.3); }
 
   .pc-stats { display:flex; gap:.5rem; margin-bottom:.85rem; }
   .stat-box { flex:1; background:var(--bg); border-radius:10px; padding:.4rem .5rem; text-align:center; }
@@ -79,7 +85,7 @@
   .stat-value { font-family:'Fredoka One',cursive; font-size:1.15rem; color:var(--text); }
 
   .pts-input { width:100%; padding:.55rem .8rem; border-radius:10px; border:2px solid var(--green-pale);
-    font-family:'Nunito',sans-serif; font-size:1rem; font-weight:800; color:var(--text); outline:none;
+    font-family:'Nunito',sans-serif; font-size:1.1rem; font-weight:800; color:var(--text); outline:none;
     text-align:center; transition:border-color .15s; margin-bottom:.6rem; }
   .pts-input:focus { border-color:var(--yellow); }
   .pts-input::placeholder { color:#ccc; font-weight:600; }
@@ -100,34 +106,42 @@
     border-radius:14px; font-family:'Fredoka One',cursive; font-size:1.1rem; cursor:pointer; transition:all .15s; }
   .btn-reset:hover { background:#fff0ee; }
 
-  /* ── CHALLENGES MODAL ── */
-  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200;
-    align-items:flex-end; justify-content:center; }
+  /* ── CHALLENGES MODAL (FULLSCREEN) ── */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:200;
+    align-items:center; justify-content:center; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
   .modal-overlay.open { display:flex; }
-  .modal-box { background:white; border-radius:24px 24px 0 0; width:100%; max-width:660px;
-    max-height:88vh; overflow-y:auto; padding:1.2rem 1.4rem 2.5rem;
-    box-shadow:0 -8px 40px rgba(0,0,0,.2); animation:slideUp .25s ease; }
-  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-  .modal-handle { width:40px; height:5px; background:#ddd; border-radius:3px; margin:0 auto 1rem; }
-  .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:.6rem; }
-  .modal-title { font-family:'Fredoka One',cursive; font-size:1.4rem; color:var(--green); }
-  .modal-close { background:none; border:none; font-size:1.8rem; cursor:pointer; color:#bbb; line-height:1; }
+
+  .modal-box {
+    background:white; border-radius:24px; width:calc(100% - 2rem); max-width:680px;
+    height:90vh; display:flex; flex-direction:column;
+    box-shadow:0 8px 50px rgba(0,0,0,.25); animation:zoomIn .2s ease;
+  }
+  @keyframes zoomIn { from{transform:scale(.94);opacity:0} to{transform:scale(1);opacity:1} }
+
+  .modal-handle { width:40px; height:5px; background:#ddd; border-radius:3px; margin:.9rem auto .4rem; flex-shrink:0; }
+  .modal-header { display:flex; align-items:center; justify-content:space-between;
+    padding:.3rem 1.4rem .8rem; flex-shrink:0; flex-wrap:wrap; gap:.6rem;
+    border-bottom:2px solid var(--green-pale); }
+  .modal-title { font-family:'Fredoka One',cursive; font-size:1.5rem; color:var(--green); }
+  .modal-close { background:none; border:none; font-size:1.9rem; cursor:pointer; color:#bbb; line-height:1; }
   .modal-close:hover { color:var(--red); }
 
   .toggle-all-btn { display:flex; align-items:center; gap:.4rem; background:var(--green-pale); border:none;
-    border-radius:10px; padding:.35rem .85rem; font-family:'Nunito',sans-serif; font-weight:800;
-    font-size:.82rem; color:var(--green); cursor:pointer; transition:all .15s; }
+    border-radius:10px; padding:.38rem .9rem; font-family:'Nunito',sans-serif; font-weight:800;
+    font-size:.85rem; color:var(--green); cursor:pointer; transition:all .15s; }
   .toggle-all-btn:hover { background:var(--green); color:white; }
   .toggle-all-btn.all-shown { background:var(--green); color:white; }
 
-  .challenge-group { margin-bottom:.75rem; border-radius:14px; overflow:hidden; border:2px solid var(--green-pale); }
-  .ch-header { background:var(--green); color:white; padding:.55rem 1rem;
-    display:flex; align-items:center; gap:.6rem; font-family:'Fredoka One',cursive; font-size:1rem; }
-  .ch-cards { background:rgba(255,255,255,.22); border-radius:20px; padding:.05rem .55rem;
-    font-size:.78rem; font-family:'Nunito',sans-serif; font-weight:800; }
-  .ch-who { font-size:.75rem; opacity:.8; margin-left:auto; font-family:'Nunito',sans-serif; font-weight:700; }
-  .ch-body { background:white; padding:.65rem 1rem; font-size:.95rem; font-weight:700; color:var(--text); line-height:1.5; }
-  .ch-key { color:var(--green); }
+  .modal-body { flex:1; overflow-y:auto; padding:1rem 1.4rem 1.5rem; -webkit-overflow-scrolling:touch; }
+
+  .challenge-group { margin-bottom:.8rem; border-radius:14px; overflow:hidden; border:2px solid var(--green-pale); }
+  .ch-header { background:var(--green); color:white; padding:.6rem 1rem;
+    display:flex; align-items:center; gap:.6rem; font-family:'Fredoka One',cursive; font-size:1.05rem; }
+  .ch-cards { background:rgba(255,255,255,.22); border-radius:20px; padding:.05rem .6rem;
+    font-size:.8rem; font-family:'Nunito',sans-serif; font-weight:800; }
+  .ch-who { font-size:.78rem; opacity:.85; margin-left:auto; font-family:'Nunito',sans-serif; font-weight:700; }
+  .ch-body { background:white; padding:.75rem 1rem; font-size:1rem; font-weight:700; color:var(--text); line-height:1.6; }
+  .ch-key { color:var(--green); font-size:1.05rem; }
 
   /* ── LEADERBOARD ── */
   #leaderboard { display:none; max-width:600px; margin:0 auto; padding:0 1rem 3rem; }
@@ -149,8 +163,8 @@
   .lb-bar { height:100%; background:var(--green-light); border-radius:4px; transition:width .5s; }
   .lb-pts { font-family:'Fredoka One',cursive; font-size:1.15rem; color:var(--red); text-align:right; }
 
-  /* ── WIN ── */
-  #win-screen { display:none; text-align:center; padding:2rem 1rem 4rem; }
+  /* ── WIN SCREEN ── */
+  #win-screen { display:none; text-align:center; padding:2rem 1rem 4rem; position:relative; overflow:hidden; }
   .win-emoji { font-size:5rem; animation:bounce .8s infinite alternate; }
   @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-16px)} }
   .win-title { font-family:'Fredoka One',cursive; font-size:2.3rem; color:var(--green); margin:.5rem 0; }
@@ -163,8 +177,14 @@
   .win-table .rank1 td { background:#fffde7; }
   .btn-play-again { margin-top:1.5rem; padding:.9rem 2.5rem; background:var(--green); color:white; border:none;
     border-radius:14px; font-family:'Fredoka One',cursive; font-size:1.3rem; cursor:pointer;
-    box-shadow:0 4px 12px rgba(45,106,79,.3); transition:all .15s; }
+    box-shadow:0 4px 12px rgba(45,106,79,.3); transition:all .15s; position:relative; z-index:10; }
   .btn-play-again:hover { background:#235c41; transform:translateY(-2px); }
+
+  /* ── CONFETTI + FIREWORKS CANVAS ── */
+  #celebration-canvas {
+    position:fixed; inset:0; pointer-events:none; z-index:500;
+    width:100%; height:100%;
+  }
 
   /* ── TOAST ── */
   .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px); background:var(--text);
@@ -203,7 +223,6 @@
     <button class="tab-btn" id="tab-lb" onclick="switchTab('leaderboard')">🏆 Classement</button>
   </div>
 
-  <!-- GAME TAB -->
   <div id="game">
     <div class="players-grid" id="players-grid"></div>
     <div class="round-actions">
@@ -213,7 +232,6 @@
     </div>
   </div>
 
-  <!-- LEADERBOARD TAB -->
   <div id="leaderboard">
     <div class="lb-card">
       <div class="lb-head">
@@ -224,7 +242,7 @@
   </div>
 </div>
 
-<!-- ══ CHALLENGES MODAL ══ -->
+<!-- ══ CHALLENGES MODAL (FULLSCREEN) ══ -->
 <div class="modal-overlay" id="challenges-overlay" onclick="overlayClick(event)">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -235,7 +253,7 @@
         <button class="modal-close" onclick="closeChallenges()">×</button>
       </div>
     </div>
-    <div id="challenges-list"></div>
+    <div class="modal-body" id="challenges-list"></div>
   </div>
 </div>
 
@@ -247,6 +265,9 @@
   <div class="win-table" id="win-table"></div>
   <button class="btn-play-again" onclick="resetGame()">🎮 Rejouer !</button>
 </div>
+
+<!-- ══ CELEBRATION CANVAS ══ -->
+<canvas id="celebration-canvas"></canvas>
 
 <div class="toast" id="toast"></div>
 
@@ -296,7 +317,7 @@ function startGame() {
   players = [];
   for (let i = 0; i < playerCount; i++) {
     const name = document.getElementById(`pname-${i}`).value.trim() || `Joueur ${i+1}`;
-    players.push({ name, emoji: EMOJIS[i], year: 1, totalPts: 0, opened: false });
+    players.push({ name, emoji: EMOJIS[i], year: 1, totalPts: 0, opened: false, _inputVal: '' });
   }
   round = 1; dealerIndex = 0;
   document.getElementById('setup').style.display = 'none';
@@ -324,6 +345,20 @@ function updateSubtitle() {
   document.getElementById('dealer-subtitle').textContent = players[dealerIndex % players.length].name;
 }
 
+function saveInputs() {
+  players.forEach((p, j) => {
+    const input = document.getElementById(`pts-${j}`);
+    if (input) p._inputVal = input.value;
+  });
+}
+
+function restoreInputs() {
+  players.forEach((p, j) => {
+    const input = document.getElementById(`pts-${j}`);
+    if (input && p._inputVal) input.value = p._inputVal;
+  });
+}
+
 // ── RENDER GAME ──
 function renderGame() {
   updateSubtitle();
@@ -336,7 +371,11 @@ function renderGame() {
         <div class="pc-header">
           <div class="pc-emoji">${p.emoji}</div>
           <div><div class="pc-name">${p.name}${isDealer?'<span class="dealer-tag">Donne</span>':''}</div></div>
-          <div class="pc-year">📚 Année ${p.year}</div>
+          <div class="pc-year-row">
+            <button class="btn-year-adj" onclick="adjustYear(${i},-1)" title="Diminuer l'année">▼</button>
+            <span class="pc-year">📚 Année ${p.year}</span>
+            <button class="btn-year-adj" onclick="adjustYear(${i},+1)" title="Augmenter l'année">▲</button>
+          </div>
         </div>
         <div class="pc-stats">
           <div class="stat-box">
@@ -354,21 +393,23 @@ function renderGame() {
         </div>
       </div>`;
   });
+  restoreInputs();
 }
 
+// ── YEAR ADJUSTMENT ──
+function adjustYear(i, delta) {
+  saveInputs();
+  const newYear = players[i].year + delta;
+  if (newYear < 1 || newYear > 10) return;
+  players[i].year = newYear;
+  renderGame();
+}
+
+// ── TOGGLE OPEN ──
 function toggleOpen(i) {
-  // Save all current input values before re-rendering
-  players.forEach((p, j) => {
-    const input = document.getElementById(`pts-${j}`);
-    if (input) p._inputVal = input.value;
-  });
+  saveInputs();
   players[i].opened = !players[i].opened;
   renderGame();
-  // Restore input values after re-render
-  players.forEach((p, j) => {
-    const input = document.getElementById(`pts-${j}`);
-    if (input && p._inputVal) input.value = p._inputVal;
-  });
 }
 
 // ── NEXT ROUND ──
@@ -376,6 +417,7 @@ function nextRound() {
   players.forEach((p, i) => {
     const val = parseInt(document.getElementById(`pts-${i}`)?.value) || 0;
     p.totalPts += val;
+    p._inputVal = '';
   });
 
   const winners = players.filter(p => p.opened && p.year >= 10);
@@ -415,16 +457,10 @@ function toggleAllYears() {
 }
 
 function renderChallenges() {
-  // Active years: unique years among players
   const activeYears = [...new Set(players.map(p => p.year))].sort((a,b)=>a-b);
-
-  const filtered = showAllYears
-    ? CHALLENGES
-    : CHALLENGES.filter(c => activeYears.includes(c.year));
-
+  const filtered = showAllYears ? CHALLENGES : CHALLENGES.filter(c => activeYears.includes(c.year));
   const list = document.getElementById('challenges-list');
   list.innerHTML = filtered.map(c => {
-    // Which players are at this year?
     const who = players.filter(p => p.year === c.year).map(p => `${p.emoji} ${p.name}`).join(', ');
     return `
       <div class="challenge-group">
@@ -436,10 +472,8 @@ function renderChallenges() {
         <div class="ch-body">${c.desc}</div>
       </div>`;
   }).join('');
-
-  if (filtered.length === 0) {
-    list.innerHTML = '<p style="text-align:center;color:#aaa;padding:1rem;font-weight:700;">Aucun défi à afficher</p>';
-  }
+  if (filtered.length === 0)
+    list.innerHTML = '<p style="text-align:center;color:#aaa;padding:1.5rem;font-weight:700;">Aucun défi à afficher</p>';
 }
 
 // ── LEADERBOARD ──
@@ -459,7 +493,7 @@ function renderLeaderboard() {
     </div>`).join('');
 }
 
-// ── WIN ──
+// ── WIN + CELEBRATION ──
 function showWin() {
   const sorted = [...players].sort((a,b) => b.year!==a.year ? b.year-a.year : a.totalPts-b.totalPts);
   document.getElementById('game-wrapper').style.display = 'none';
@@ -472,11 +506,118 @@ function showWin() {
     <tbody>${sorted.map((p,i) => `<tr class="${i===0?'rank1':''}">
       <td>${i<3?ranks[i]:i+1}</td><td>${p.emoji} ${p.name}</td><td>${p.year}</td><td>${p.totalPts}</td>
     </tr>`).join('')}</tbody></table>`;
+  startCelebration();
+}
+
+// ── CELEBRATION (CONFETTI + FIREWORKS) ──
+function startCelebration() {
+  const canvas = document.getElementById('celebration-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const COLORS = ['#f4a261','#2d6a4f','#52b788','#e76f51','#457b9d','#ffd166','#a8dadc','#e63946'];
+  const particles = [];
+
+  // Confetti pieces
+  for (let i = 0; i < 160; i++) {
+    particles.push({
+      type: 'confetti',
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * canvas.height * 0.5,
+      w: 8 + Math.random() * 10,
+      h: 4 + Math.random() * 6,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      vx: (Math.random() - 0.5) * 3,
+      vy: 2 + Math.random() * 4,
+      angle: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 0.2,
+      alpha: 1,
+    });
+  }
+
+  // Firework bursts
+  const fireworks = [];
+  function launchFirework() {
+    const fx = canvas.width * (0.2 + Math.random() * 0.6);
+    const fy = canvas.height * (0.1 + Math.random() * 0.35);
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    for (let i = 0; i < 48; i++) {
+      const angle = (i / 48) * Math.PI * 2;
+      const speed = 3 + Math.random() * 5;
+      fireworks.push({
+        x: fx, y: fy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color, alpha: 1,
+        size: 2 + Math.random() * 2,
+      });
+    }
+  }
+
+  // Launch fireworks at intervals
+  let fwCount = 0;
+  const fwInterval = setInterval(() => {
+    launchFirework();
+    fwCount++;
+    if (fwCount >= 6) clearInterval(fwInterval);
+  }, 500);
+  launchFirework(); // immediate first one
+
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw confetti
+    particles.forEach(p => {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.07;
+      p.angle += p.spin;
+      if (p.y > canvas.height + 20) p.alpha = 0;
+    });
+
+    // Draw firework sparks
+    fireworks.forEach(f => {
+      ctx.save();
+      ctx.globalAlpha = f.alpha;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
+      ctx.fillStyle = f.color;
+      ctx.fill();
+      ctx.restore();
+      f.x += f.vx;
+      f.y += f.vy;
+      f.vy += 0.12;
+      f.vx *= 0.97;
+      f.alpha -= 0.018;
+    });
+
+    frame++;
+    // Stop after ~5 seconds (300 frames at 60fps)
+    const alive = particles.some(p => p.alpha > 0) || fireworks.some(f => f.alpha > 0);
+    if (frame < 360 || alive) {
+      requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  animate();
 }
 
 // ── RESET ──
 function confirmReset() { if(confirm('Recommencer une nouvelle partie ?')) resetGame(); }
 function resetGame() {
+  // Clear celebration canvas
+  const canvas = document.getElementById('celebration-canvas');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   document.getElementById('win-screen').style.display = 'none';
   document.getElementById('game-wrapper').style.display = 'none';
   document.getElementById('setup').style.display = 'block';
