@@ -306,6 +306,10 @@
 <div id="game-wrapper" style="display:none">
   <h1>🎒 La Petite École</h1>
   <p class="subtitle">Tour <span id="round-subtitle">1</span> — <span id="cards-subtitle">11</span> cartes &bull; Donne : <span id="dealer-subtitle">—</span></p>
+  <p id="session-code-display" style="display:none;text-align:center;font-family:'Fredoka One',cursive;
+    font-size:1rem;color:var(--green);letter-spacing:.15rem;margin-bottom:.3rem;">
+    🔑 Code : <span id="session-code-value"></span>
+  </p>
 
   <div class="tabs">
     <button class="tab-btn active" id="tab-game" onclick="switchTab('game')">🎮 Tour en cours</button>
@@ -427,6 +431,7 @@ function startGame() {
   round = 1; dealerIndex = 0;
   showOnly('game-wrapper');
   switchTab('game');
+  document.getElementById('session-code-display').style.display = 'none';
   renderGame();
 }
 
@@ -479,6 +484,11 @@ function startOnlineGame() {
   stopPolling();
   showOnly('game-wrapper');
   switchTab('game');
+  // Afficher le code de session
+  if (sessionCode) {
+    document.getElementById('session-code-value').textContent = sessionCode;
+    document.getElementById('session-code-display').style.display = 'block';
+  }
   renderGame();
   startPollingHost();
 }
