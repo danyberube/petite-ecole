@@ -543,29 +543,33 @@ function startPollingHost() {
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
-      const localOpened = players.map(p => p.opened);
       // Identifier quel input l'hôte est en train de modifier
       const active = document.activeElement;
       const isTyping = active && active.classList.contains('pts-input');
-      const activeId = isTyping ? active.id : null; // ex: "pts-2"
+      const activeId = isTyping ? active.id : null;
       const activeIdx = activeId ? parseInt(activeId.split('-')[1]) : -1;
       const activeVal = isTyping ? (parseInt(active.value) || 0) : 0;
       applyState(state);
       players.forEach((p, i) => {
-        // Préserver opened local seulement si local=true et serveur=false
-        if (localOpened[i] && !state.players[i].opened) p.opened = localOpened[i];
-        // Préserver roundPts seulement pour l'input actif
         if (i === activeIdx) p.roundPts = activeVal;
       });
       if (!isTyping) {
         renderGame();
       } else {
-        // Mettre à jour seulement les valeurs affichées sans recréer les inputs
+        // Mettre à jour les valeurs sans recréer les inputs
         players.forEach((p, i) => {
           const totalEl = document.getElementById(`pts-total-${i}`);
           if (totalEl && !totalEl.querySelector('input')) totalEl.textContent = p.totalPts;
           const ptsInput = document.getElementById(`pts-${i}`);
           if (ptsInput && i !== activeIdx) ptsInput.value = p.roundPts || '';
+          // Mettre à jour le bouton A ouvert
+          const openBtn = document.querySelector(`#pc-${i} .btn-open`);
+          if (openBtn) {
+            openBtn.textContent = p.opened ? '✓ A ouvert' : '🎯 A ouvert ?';
+            openBtn.className = `btn-open${p.opened ? ' active' : ''}`;
+          }
+          const card = document.getElementById(`pc-${i}`);
+          if (card) card.className = `player-card${p.opened ? ' opened' : ''}`;
         });
       }
     } catch(e) {}
