@@ -831,6 +831,9 @@ async function nextRound() {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}/next-round`, { method: 'POST' });
       const state = await res.json();
       applyState(state);
+      // Vider les roundPts locaux — le serveur les a remis à 0
+      players.forEach(p => { p.roundPts = 0; });
+      hostPtsTimeout = {};
       if (state.phase !== 'finished') {
         renderGame();
         showToast(`Tour ${round} — ${cardsCount()} cartes à distribuer`);
