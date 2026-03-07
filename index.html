@@ -543,10 +543,14 @@ function startPollingHost() {
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
-      // Préserver les opened locaux (optimistic update)
+      // Préserver les valeurs locales (optimistic update)
       const localOpened = players.map(p => p.opened);
+      const localRoundPts = players.map(p => p.roundPts);
       applyState(state);
-      players.forEach((p, i) => { if (localOpened[i]) p.opened = localOpened[i]; });
+      players.forEach((p, i) => {
+        if (localOpened[i]) p.opened = localOpened[i];
+        if (localRoundPts[i]) p.roundPts = localRoundPts[i];
+      });
       renderGame();
     } catch(e) {}
   }, 3000);
@@ -726,7 +730,8 @@ function renderGame() {
           </div>
         </div>
         <input class="pts-input" id="pts-${i}" type="tel" inputmode="numeric" pattern="[0-9]*"
-          placeholder="Points restants ce tour…">
+          placeholder="Points restants ce tour…" value="${p.roundPts || ''}"
+          oninput="saveHostPts(${i}, this.value)">
         <div class="pc-actions">
           <button class="btn-open ${p.opened?'active':''}" onclick="toggleOpen(${i})">
             ${p.opened?'✓ A ouvert':'🎯 A ouvert ?'}
@@ -734,7 +739,24 @@ function renderGame() {
         </div>
       </div>`;
   });
-  restoreInputs();
+  // plus besoin de restoreInputs — les valeurs viennent de players[i].roundPts
+}
+
+let hostPtsTimeout = {};
+async function saveHostPts(i, val) {
+  players[i].roundPts = parseInt(val) || 0;
+  if (!sessionCode) return;
+  // Debounce pour ne pas envoyer à chaque frappe
+  clearTimeout(hostPtsTimeout[i]);
+  hostPtsTimeout[i] = setTimeout(async () => {
+    try {
+      await fetch(`${WORKER_URL}/session/${sessionCode}/player/${i}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roundPts: players[i].roundPts }),
+      });
+    } catch(e) {}
+  }, 600);
 }
 
 // ── EDIT YEAR ──
