@@ -266,16 +266,14 @@
     <input id="join-code" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4"
       placeholder="1234" style="width:100%;text-align:center;font-family:'Fredoka One',cursive;
       font-size:2.5rem;padding:.6rem;border:3px solid var(--green-pale);border-radius:14px;
-      outline:none;margin-bottom:1rem;letter-spacing:.5rem;color:var(--green);">
-    <input id="join-name" type="text" maxlength="16"
-      placeholder="Ton prénom…" style="width:100%;padding:.6rem 1rem;border:2px solid var(--green-pale);
-      border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;
-      outline:none;margin-bottom:1rem;color:var(--text);">
-    <div id="join-error" style="color:var(--red);font-weight:700;font-size:.9rem;text-align:center;margin-bottom:.8rem;display:none;"></div>
-    <div style="display:flex;gap:.6rem;">
-      <button class="btn-start" style="background:white;color:var(--text);border:2px solid var(--green-pale);box-shadow:none;flex:0 0 auto;width:auto;padding:.9rem 1.2rem;" onclick="showHome()">←</button>
-      <button class="btn-start" style="flex:1" onclick="joinGame()">🔑 Rejoindre</button>
+      outline:none;margin-bottom:1rem;letter-spacing:.5rem;color:var(--green);"
+      oninput="onCodeInput(this.value)">
+    <div id="join-players" style="display:none;margin-bottom:1rem;">
+      <p style="font-weight:700;color:var(--green);margin-bottom:.6rem;text-align:center;">C'est qui ?</p>
+      <div id="join-players-list" style="display:flex;flex-direction:column;gap:.5rem;"></div>
     </div>
+    <div id="join-error" style="color:var(--red);font-weight:700;font-size:.9rem;text-align:center;margin-bottom:.8rem;display:none;"></div>
+    <button class="btn-start" style="background:white;color:var(--text);border:2px solid var(--green-pale);box-shadow:none;width:auto;padding:.9rem 1.2rem;" onclick="showHome()">← Retour</button>
   </div>
 </div>
 
@@ -486,27 +484,43 @@ function startOnlineGame() {
 }
 
 // ── REJOINDRE ──
-async function joinGame() {
-  const code = document.getElementById('join-code').value.trim();
-  const name = document.getElementById('join-name').value.trim();
+let joinCodeTimeout = null;
+async function onCodeInput(val) {
   const errEl = document.getElementById('join-error');
+  const playersEl = document.getElementById('join-players');
   errEl.style.display = 'none';
+  playersEl.style.display = 'none';
+  if (joinCodeTimeout) clearTimeout(joinCodeTimeout);
+  if (val.length !== 4) return;
+  joinCodeTimeout = setTimeout(async () => {
+    try {
+      const res = await fetch(`${WORKER_URL}/session/${val}`);
+      if (!res.ok) { errEl.textContent = 'Code introuvable'; errEl.style.display = 'block'; return; }
+      const state = await res.json();
+      const list = document.getElementById('join-players-list');
+      list.innerHTML = state.players.map((p, i) => `
+        <button onclick="joinAs('${val}', ${i})"
+          style="display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;
+          background:white;border:2px solid var(--green-pale);border-radius:14px;
+          font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--green);
+          cursor:pointer;transition:all .15s;text-align:left;"
+          onmouseover="this.style.borderColor='var(--green-light)';this.style.background='var(--green-pale)'"
+          onmouseout="this.style.borderColor='var(--green-pale)';this.style.background='white'">
+          <span style="font-size:1.6rem">${p.emoji}</span>${p.name}
+        </button>`).join('');
+      playersEl.style.display = 'block';
+    } catch(e) {
+      errEl.textContent = 'Erreur de connexion'; errEl.style.display = 'block';
+    }
+  }, 400);
+}
 
-  if (code.length !== 4) { errEl.textContent = 'Entre un code à 4 chiffres'; errEl.style.display = 'block'; return; }
-  if (!name) { errEl.textContent = 'Entre ton prénom'; errEl.style.display = 'block'; return; }
-
+async function joinAs(code, idx) {
+  const errEl = document.getElementById('join-error');
   try {
     const res = await fetch(`${WORKER_URL}/session/${code}`);
     if (!res.ok) { errEl.textContent = 'Code introuvable'; errEl.style.display = 'block'; return; }
     const state = await res.json();
-
-    // Trouver le joueur par son nom
-    const idx = state.players.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
-    if (idx === -1) {
-      errEl.textContent = `"${name}" n'est pas dans cette partie. Joueurs : ${state.players.map(p=>p.name).join(', ')}`;
-      errEl.style.display = 'block';
-      return;
-    }
     sessionCode = code;
     myPlayerId = idx;
     applyState(state);
