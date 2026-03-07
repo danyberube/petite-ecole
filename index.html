@@ -657,16 +657,16 @@ async function saveMyPts() {
 
 async function toggleMyOpen() {
   if (!sessionCode || myPlayerId === null) return;
-  const p = players[myPlayerId];
+  // Mise à jour optimiste locale immédiate
+  players[myPlayerId].opened = !players[myPlayerId].opened;
+  renderPlayerView();
+  // Envoyer au serveur en arrière-plan
   try {
-    const res = await fetch(`${WORKER_URL}/session/${sessionCode}/player/${myPlayerId}`, {
+    await fetch(`${WORKER_URL}/session/${sessionCode}/player/${myPlayerId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ opened: !p.opened }),
+      body: JSON.stringify({ opened: players[myPlayerId].opened }),
     });
-    const state = await res.json();
-    applyState(state);
-    renderPlayerView();
   } catch(e) {}
 }
 
