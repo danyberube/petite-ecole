@@ -44,6 +44,11 @@
 
   /* ── SETUP ── */
   #setup { max-width:480px; margin:0 auto; padding:0 1.5rem 2rem; }
+  #home { max-width:480px; margin:0 auto; padding:0 1.5rem 2rem; }
+  #create-online { max-width:480px; margin:0 auto; padding:0 1.5rem 2rem; }
+  #join { max-width:480px; margin:0 auto; padding:0 1.5rem 2rem; }
+  #code-display { max-width:480px; margin:0 auto; padding:0 1.5rem 2rem; }
+  #player-view { padding:0 0 2rem; }
   .setup-card { background:white; border-radius:20px; padding:2rem; box-shadow:var(--shadow); border:2px solid var(--green-pale); }
   .setup-card h2 { font-family:'Fredoka One',cursive; color:var(--green); margin-bottom:1.3rem; font-size:1.3rem; text-align:center; }
   .player-count-btns { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin-bottom:1.6rem; }
@@ -196,8 +201,22 @@
 </head>
 <body>
 
-<!-- ══ SETUP ══ -->
-<div id="setup">
+<!-- ══ ACCUEIL ══ -->
+<div id="home">
+  <h1>🎒 La Petite École</h1>
+  <p class="subtitle">Calculateur de points</p>
+  <div class="setup-card" style="max-width:480px;margin:0 auto;">
+    <h2>Comment jouer ?</h2>
+    <div style="display:flex;flex-direction:column;gap:.8rem;margin-top:.5rem;">
+      <button class="btn-start" onclick="showSetup()">🏠 Partie locale (solo)</button>
+      <button class="btn-start" style="background:var(--blue);box-shadow:0 4px 12px rgba(69,123,157,.3);" onclick="showCreateOnline()">📱 Créer une partie en ligne</button>
+      <button class="btn-start" style="background:white;color:var(--green);border:2px solid var(--green-light);box-shadow:none;" onclick="showJoin()">🔑 Rejoindre une partie</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETUP LOCAL ══ -->
+<div id="setup" style="display:none">
   <h1>🎒 La Petite École</h1>
   <p class="subtitle">Calculateur de points</p>
   <div class="setup-card">
@@ -210,7 +229,78 @@
       <button class="count-btn" onclick="selectCount(6)">6</button>
     </div>
     <div class="player-inputs" id="player-inputs"></div>
-    <button class="btn-start" onclick="startGame()">🎮 Commencer la partie !</button>
+    <div style="display:flex;gap:.6rem;margin-top:.5rem;">
+      <button class="btn-start" style="background:white;color:var(--text);border:2px solid var(--green-pale);box-shadow:none;flex:0 0 auto;width:auto;padding:.9rem 1.2rem;" onclick="showHome()">←</button>
+      <button class="btn-start" style="flex:1" onclick="startGame()">🎮 Commencer la partie !</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CRÉER EN LIGNE ══ -->
+<div id="create-online" style="display:none">
+  <h1>🎒 La Petite École</h1>
+  <p class="subtitle">Créer une partie en ligne</p>
+  <div class="setup-card">
+    <h2>Combien de joueurs ?</h2>
+    <div class="player-count-btns" id="count-btns-online">
+      <button class="count-btn" onclick="selectCountOnline(2)">2</button>
+      <button class="count-btn" onclick="selectCountOnline(3)">3</button>
+      <button class="count-btn active" onclick="selectCountOnline(4)">4</button>
+      <button class="count-btn" onclick="selectCountOnline(5)">5</button>
+      <button class="count-btn" onclick="selectCountOnline(6)">6</button>
+    </div>
+    <div class="player-inputs" id="player-inputs-online"></div>
+    <div style="display:flex;gap:.6rem;margin-top:.5rem;">
+      <button class="btn-start" style="background:white;color:var(--text);border:2px solid var(--green-pale);box-shadow:none;flex:0 0 auto;width:auto;padding:.9rem 1.2rem;" onclick="showHome()">←</button>
+      <button class="btn-start" style="flex:1;background:var(--blue);box-shadow:0 4px 12px rgba(69,123,157,.3);" onclick="createOnlineGame()">📱 Créer la partie</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REJOINDRE ══ -->
+<div id="join" style="display:none">
+  <h1>🎒 La Petite École</h1>
+  <p class="subtitle">Rejoindre une partie</p>
+  <div class="setup-card" style="max-width:380px;margin:0 auto;">
+    <h2>Entre le code de la partie</h2>
+    <input id="join-code" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4"
+      placeholder="1234" style="width:100%;text-align:center;font-family:'Fredoka One',cursive;
+      font-size:2.5rem;padding:.6rem;border:3px solid var(--green-pale);border-radius:14px;
+      outline:none;margin-bottom:1rem;letter-spacing:.5rem;color:var(--green);">
+    <input id="join-name" type="text" maxlength="16"
+      placeholder="Ton prénom…" style="width:100%;padding:.6rem 1rem;border:2px solid var(--green-pale);
+      border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;
+      outline:none;margin-bottom:1rem;color:var(--text);">
+    <div id="join-error" style="color:var(--red);font-weight:700;font-size:.9rem;text-align:center;margin-bottom:.8rem;display:none;"></div>
+    <div style="display:flex;gap:.6rem;">
+      <button class="btn-start" style="background:white;color:var(--text);border:2px solid var(--green-pale);box-shadow:none;flex:0 0 auto;width:auto;padding:.9rem 1.2rem;" onclick="showHome()">←</button>
+      <button class="btn-start" style="flex:1" onclick="joinGame()">🔑 Rejoindre</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CODE AFFICHÉ (HÔTE) ══ -->
+<div id="code-display" style="display:none">
+  <h1>🎒 La Petite École</h1>
+  <p class="subtitle">Partie en ligne — vous êtes l'hôte</p>
+  <div class="setup-card" style="max-width:400px;margin:0 auto;text-align:center;">
+    <h2>Code de la partie</h2>
+    <div id="session-code-big" style="font-family:'Fredoka One',cursive;font-size:4rem;color:var(--green);
+      letter-spacing:.8rem;padding:1rem 0;text-shadow:3px 3px 0 var(--green-pale);"></div>
+    <p style="color:#888;font-weight:700;font-size:.9rem;margin-bottom:1.2rem;">Partagez ce code avec les autres joueurs</p>
+    <div id="waiting-players" style="margin-bottom:1.2rem;"></div>
+    <button class="btn-start" onclick="startOnlineGame()">🎮 Démarrer la partie !</button>
+  </div>
+</div>
+
+<!-- ══ VUE JOUEUR (TÉLÉPHONE) ══ -->
+<div id="player-view" style="display:none">
+  <h1>🎒 La Petite École</h1>
+  <p class="subtitle" id="player-view-subtitle"></p>
+  <div style="max-width:480px;margin:0 auto;padding:0 1rem;">
+    <div class="player-card" id="my-card" style="margin-bottom:1rem;"></div>
+    <div class="challenge-group" id="my-challenge"></div>
+    <div style="text-align:center;margin-top:1rem;color:#aaa;font-size:.8rem;font-weight:700;" id="sync-status">🔄 Synchronisation…</div>
   </div>
 </div>
 
@@ -273,9 +363,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── DATA ──
+const WORKER_URL = 'https://petite-ecole-worker.dany-b53.workers.dev';
 const EMOJIS = ['🦊','🐻','🦁','🐸','🦋','🐼'];
-
 const CHALLENGES = [
   { year:1,  cards:11, desc:'<span class="ch-key">1 suite de 4</span> + <span class="ch-key">1 trio</span>' },
   { year:2,  cards:12, desc:'<span class="ch-key">1 suite de 4</span> + <span class="ch-key">2 trios</span>' },
@@ -289,19 +378,37 @@ const CHALLENGES = [
   { year:10, cards:20, desc:'<span class="ch-key">1 suite de 10</span> + <span class="ch-key">3 trios</span>' },
 ];
 
+// ── ÉTAT ──
 let playerCount = 4;
 let players = [];
 let round = 1;
 let dealerIndex = 0;
 let showAllYears = false;
 
-// ── SETUP ──
+// Multi-appareils
+let sessionCode = null;
+let myPlayerId = null;  // null = hôte
+let pollInterval = null;
+let playerCountOnline = 4;
+
+// ── NAVIGATION ──
+function showOnly(id) {
+  ['home','setup','create-online','join','code-display','game-wrapper','player-view','win-screen']
+    .forEach(s => { const el = document.getElementById(s); if(el) el.style.display = 'none'; });
+  const target = document.getElementById(id);
+  if (target) target.style.display = 'block';
+}
+function showHome() { stopPolling(); showOnly('home'); }
+function showSetup() { showOnly('setup'); selectCount(4); }
+function showCreateOnline() { showOnly('create-online'); selectCountOnline(4); }
+function showJoin() { showOnly('join'); }
+
+// ── SETUP LOCAL ──
 function selectCount(n) {
   playerCount = n;
-  document.querySelectorAll('.count-btn').forEach((b,i) => b.classList.toggle('active', i+2===n));
+  document.querySelectorAll('#count-btns .count-btn').forEach((b,i) => b.classList.toggle('active', i+2===n));
   buildInputs();
 }
-
 function buildInputs() {
   const defaults = ['Sylvie','Hubert','Carole','Dany','Eva','François'];
   const c = document.getElementById('player-inputs');
@@ -313,7 +420,6 @@ function buildInputs() {
     </div>`;
   }
 }
-
 function startGame() {
   players = [];
   for (let i = 0; i < playerCount; i++) {
@@ -321,10 +427,213 @@ function startGame() {
     players.push({ name, emoji: EMOJIS[i], year: 1, totalPts: 0, opened: false, _inputVal: '' });
   }
   round = 1; dealerIndex = 0;
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('game-wrapper').style.display = 'block';
+  showOnly('game-wrapper');
   switchTab('game');
   renderGame();
+}
+
+// ── SETUP EN LIGNE ──
+function selectCountOnline(n) {
+  playerCountOnline = n;
+  document.querySelectorAll('#count-btns-online .count-btn').forEach((b,i) => b.classList.toggle('active', i+2===n));
+  buildInputsOnline();
+}
+function buildInputsOnline() {
+  const defaults = ['Sylvie','Hubert','Carole','Dany','Eva','François'];
+  const c = document.getElementById('player-inputs-online');
+  c.innerHTML = '';
+  for (let i = 0; i < playerCountOnline; i++) {
+    c.innerHTML += `<div class="player-input-row">
+      <div class="player-emoji">${EMOJIS[i]}</div>
+      <input type="text" id="pname-online-${i}" placeholder="${defaults[i]}" value="${defaults[i]}" maxlength="16">
+    </div>`;
+  }
+}
+async function createOnlineGame() {
+  const playersList = [];
+  for (let i = 0; i < playerCountOnline; i++) {
+    const name = document.getElementById(`pname-online-${i}`).value.trim() || `Joueur ${i+1}`;
+    playersList.push({ name, emoji: EMOJIS[i] });
+  }
+  try {
+    const res = await fetch(`${WORKER_URL}/session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ players: playersList }),
+    });
+    const data = await res.json();
+    sessionCode = data.code;
+    myPlayerId = null; // hôte
+    // Charger l'état
+    players = data.state.players;
+    round = data.state.round;
+    dealerIndex = data.state.dealerIndex;
+    // Afficher le code
+    document.getElementById('session-code-big').textContent = sessionCode;
+    showOnly('code-display');
+    startPollingHost();
+  } catch(e) {
+    showToast('Erreur de connexion');
+  }
+}
+
+function startOnlineGame() {
+  stopPolling();
+  showOnly('game-wrapper');
+  switchTab('game');
+  renderGame();
+  startPollingHost();
+}
+
+// ── REJOINDRE ──
+async function joinGame() {
+  const code = document.getElementById('join-code').value.trim();
+  const name = document.getElementById('join-name').value.trim();
+  const errEl = document.getElementById('join-error');
+  errEl.style.display = 'none';
+
+  if (code.length !== 4) { errEl.textContent = 'Entre un code à 4 chiffres'; errEl.style.display = 'block'; return; }
+  if (!name) { errEl.textContent = 'Entre ton prénom'; errEl.style.display = 'block'; return; }
+
+  try {
+    const res = await fetch(`${WORKER_URL}/session/${code}`);
+    if (!res.ok) { errEl.textContent = 'Code introuvable'; errEl.style.display = 'block'; return; }
+    const state = await res.json();
+
+    // Trouver le joueur par son nom
+    const idx = state.players.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+    if (idx === -1) {
+      errEl.textContent = `"${name}" n'est pas dans cette partie. Joueurs : ${state.players.map(p=>p.name).join(', ')}`;
+      errEl.style.display = 'block';
+      return;
+    }
+    sessionCode = code;
+    myPlayerId = idx;
+    applyState(state);
+    showOnly('player-view');
+    renderPlayerView();
+    startPollingPlayer();
+  } catch(e) {
+    errEl.textContent = 'Erreur de connexion'; errEl.style.display = 'block';
+  }
+}
+
+// ── POLLING ──
+function stopPolling() {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+}
+function startPollingHost() {
+  stopPolling();
+  pollInterval = setInterval(async () => {
+    if (!sessionCode) return;
+    try {
+      const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
+      const state = await res.json();
+      applyState(state);
+      renderGame();
+    } catch(e) {}
+  }, 3000);
+}
+function startPollingPlayer() {
+  stopPolling();
+  pollInterval = setInterval(async () => {
+    if (!sessionCode) return;
+    try {
+      const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
+      const state = await res.json();
+      applyState(state);
+      renderPlayerView();
+    } catch(e) {}
+  }, 3000);
+}
+function applyState(state) {
+  players = state.players.map(p => ({ ...p, _inputVal: '' }));
+  round = state.round;
+  dealerIndex = state.dealerIndex;
+  if (state.phase === 'finished') {
+    stopPolling();
+    showWin();
+  }
+}
+
+// ── VUE JOUEUR ──
+function renderPlayerView() {
+  if (myPlayerId === null) return;
+  const p = players[myPlayerId];
+  if (!p) return;
+
+  document.getElementById('player-view-subtitle').textContent =
+    `Tour ${round} — ${cardsCount()} cartes • ${players[dealerIndex % players.length].name} donne`;
+
+  const ch = CHALLENGES.find(c => c.year === p.year);
+  const isDealer = (dealerIndex % players.length) === myPlayerId;
+
+  document.getElementById('my-card').innerHTML = `
+    <div class="pc-header">
+      <div class="pc-emoji" style="font-size:2rem">${p.emoji}</div>
+      <div>
+        <div class="pc-name" style="font-size:1.3rem">${p.name}${isDealer ? '<span class="dealer-tag">Donne</span>' : ''}</div>
+      </div>
+      <div class="pc-year-row">
+        <span class="pc-year" style="font-size:.95rem">📚 Année ${p.year}</span>
+      </div>
+    </div>
+    <div class="pc-stats" style="margin-bottom:.7rem">
+      <div class="stat-box">
+        <div class="stat-label">Points total</div>
+        <div class="stat-value" style="font-size:1.4rem">${p.totalPts}</div>
+      </div>
+    </div>
+    <input class="pts-input" id="my-pts-input" type="tel" inputmode="numeric" pattern="[0-9]*"
+      placeholder="Points restants ce tour…" value="${p.roundPts || ''}"
+      oninput="saveMyPts()" style="font-size:1.1rem;padding:.5rem .8rem;margin-bottom:.7rem">
+    <div class="pc-actions">
+      <button class="btn-open ${p.opened ? 'active' : ''}" onclick="toggleMyOpen()"
+        style="padding:.6rem;font-size:1rem">
+        ${p.opened ? '✓ A ouvert !' : '🎯 A ouvert ?'}
+      </button>
+    </div>
+  `;
+  document.getElementById('my-card').className = `player-card${p.opened ? ' opened' : ''}`;
+
+  if (ch) {
+    document.getElementById('my-challenge').innerHTML = `
+      <div class="ch-header">
+        <span>Mon défi — Année ${ch.year}</span>
+        <span class="ch-cards">${ch.cards} cartes</span>
+      </div>
+      <div class="ch-body">${ch.desc}</div>
+    `;
+  }
+
+  document.getElementById('sync-status').textContent = '✓ Synchronisé • ' + new Date().toLocaleTimeString('fr-CA', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+async function saveMyPts() {
+  if (!sessionCode || myPlayerId === null) return;
+  const val = parseInt(document.getElementById('my-pts-input')?.value.replace(/\D/g,'')) || 0;
+  try {
+    await fetch(`${WORKER_URL}/session/${sessionCode}/player/${myPlayerId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roundPts: val }),
+    });
+  } catch(e) {}
+}
+
+async function toggleMyOpen() {
+  if (!sessionCode || myPlayerId === null) return;
+  const p = players[myPlayerId];
+  try {
+    const res = await fetch(`${WORKER_URL}/session/${sessionCode}/player/${myPlayerId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ opened: !p.opened }),
+    });
+    const state = await res.json();
+    applyState(state);
+    renderPlayerView();
+  } catch(e) {}
 }
 
 // ── TABS ──
@@ -339,28 +648,19 @@ function switchTab(tab) {
 // ── HELPERS ──
 function maxYear() { return Math.max(...players.map(p => p.year)); }
 function cardsCount() { return 10 + maxYear(); }
-
 function updateSubtitle() {
   document.getElementById('round-subtitle').textContent = round;
   document.getElementById('cards-subtitle').textContent = cardsCount();
   document.getElementById('dealer-subtitle').textContent = players[dealerIndex % players.length].name;
 }
-
 function saveInputs() {
-  players.forEach((p, j) => {
-    const input = document.getElementById(`pts-${j}`);
-    if (input) p._inputVal = input.value;
-  });
+  players.forEach((p, j) => { const input = document.getElementById(`pts-${j}`); if (input) p._inputVal = input.value; });
 }
-
 function restoreInputs() {
-  players.forEach((p, j) => {
-    const input = document.getElementById(`pts-${j}`);
-    if (input && p._inputVal) input.value = p._inputVal;
-  });
+  players.forEach((p, j) => { const input = document.getElementById(`pts-${j}`); if (input && p._inputVal) input.value = p._inputVal; });
 }
 
-// ── RENDER GAME ──
+// ── RENDER GAME (HÔTE) ──
 function renderGame() {
   updateSubtitle();
   const grid = document.getElementById('players-grid');
@@ -382,8 +682,7 @@ function renderGame() {
             <div class="stat-value" id="pts-total-${i}">${p.totalPts}</div>
           </div>
         </div>
-        <input class="pts-input" id="pts-${i}" type="tel"
-          inputmode="numeric" pattern="[0-9]*"
+        <input class="pts-input" id="pts-${i}" type="tel" inputmode="numeric" pattern="[0-9]*"
           placeholder="Points restants ce tour…">
         <div class="pc-actions">
           <button class="btn-open ${p.opened?'active':''}" onclick="toggleOpen(${i})">
@@ -400,18 +699,13 @@ function editYear(i) {
   const badge = document.getElementById(`year-badge-${i}`);
   if (!badge) return;
   const options = Array.from({length:10}, (_,k) => k+1)
-    .map(y => `<option value="${y}" ${players[i].year===y?'selected':''}>${y}</option>`)
-    .join('');
+    .map(y => `<option value="${y}" ${players[i].year===y?'selected':''}>${y}</option>`).join('');
   badge.innerHTML = `<select id="year-select-${i}"
     style="font-family:'Fredoka One',cursive;font-size:.85rem;border:2px solid var(--yellow);
     border-radius:8px;padding:.15rem .4rem;outline:none;color:var(--green);background:white;cursor:pointer;"
-    onchange="confirmYear(${i})"
-    onblur="confirmYear(${i})">
-    ${options}
-  </select>`;
+    onchange="confirmYear(${i})" onblur="confirmYear(${i})">${options}</select>`;
   document.getElementById(`year-select-${i}`).focus();
 }
-
 function confirmYear(i) {
   const sel = document.getElementById(`year-select-${i}`);
   if (!sel) return;
@@ -430,11 +724,9 @@ function editTotalPts(i) {
     border:2px solid var(--yellow);border-radius:8px;padding:.2rem .4rem;outline:none;color:var(--text);"
     onblur="confirmTotalPts(${i})"
     onkeydown="if(event.key==='Enter') confirmTotalPts(${i}); if(event.key==='Escape') cancelTotalPts(${i}, ${current})">`;
-  const input = document.getElementById(`pts-total-input-${i}`);
-  input.focus();
-  input.select();
+  document.getElementById(`pts-total-input-${i}`).focus();
+  document.getElementById(`pts-total-input-${i}`).select();
 }
-
 function confirmTotalPts(i) {
   const input = document.getElementById(`pts-total-input-${i}`);
   if (!input) return;
@@ -443,13 +735,9 @@ function confirmTotalPts(i) {
   const el = document.getElementById(`pts-total-${i}`);
   if (el) el.innerHTML = players[i].totalPts;
 }
-
 function cancelTotalPts(i, original) {
-  const el = document.getElementById(`pts-total-${i}`);
-  if (el) el.innerHTML = original;
+  const el = document.getElementById(`pts-total-${i}`); if (el) el.innerHTML = original;
 }
-
-
 function toggleOpen(i) {
   saveInputs();
   players[i].opened = !players[i].opened;
@@ -457,23 +745,29 @@ function toggleOpen(i) {
 }
 
 // ── NEXT ROUND ──
-function nextRound() {
-  players.forEach((p, i) => {
-    const val = parseInt(document.getElementById(`pts-${i}`)?.value.replace(/\D/g,'')) || 0;
-    p.totalPts += val;
-    p._inputVal = '';
-  });
-
-  const winners = players.filter(p => p.opened && p.year >= 10);
-  if (winners.length > 0) {
-    showWin();
+async function nextRound() {
+  if (sessionCode && myPlayerId === null) {
+    // Mode en ligne — hôte
+    try {
+      const res = await fetch(`${WORKER_URL}/session/${sessionCode}/next-round`, { method: 'POST' });
+      const state = await res.json();
+      applyState(state);
+      if (state.phase !== 'finished') {
+        renderGame();
+        showToast(`Tour ${round} — ${cardsCount()} cartes à distribuer`);
+      }
+    } catch(e) { showToast('Erreur de connexion'); }
     return;
   }
-
-  players.forEach(p => { if (p.opened && p.year < 10) p.year++; });
-  players.forEach(p => { p.opened = false; });
-  round++;
-  dealerIndex++;
+  // Mode local
+  players.forEach((p, i) => {
+    const val = parseInt(document.getElementById(`pts-${i}`)?.value.replace(/\D/g,'')) || 0;
+    p.totalPts += val; p._inputVal = '';
+  });
+  const winners = players.filter(p => p.opened && p.year >= 10);
+  if (winners.length > 0) { showWin(); return; }
+  players.forEach(p => { if (p.opened && p.year < 10) p.year++; p.opened = false; });
+  round++; dealerIndex++;
   renderGame();
   showToast(`Tour ${round} — ${cardsCount()} cartes à distribuer`);
 }
@@ -485,39 +779,25 @@ function openChallenges() {
   renderChallenges();
   document.getElementById('challenges-overlay').classList.add('open');
 }
-
-function closeChallenges() {
-  document.getElementById('challenges-overlay').classList.remove('open');
-}
-
-function overlayClick(e) {
-  if (e.target === document.getElementById('challenges-overlay')) closeChallenges();
-}
-
+function closeChallenges() { document.getElementById('challenges-overlay').classList.remove('open'); }
+function overlayClick(e) { if (e.target === document.getElementById('challenges-overlay')) closeChallenges(); }
 function toggleAllYears() {
   showAllYears = !showAllYears;
   document.getElementById('toggle-all-btn').classList.toggle('all-shown', showAllYears);
   renderChallenges();
 }
-
 function renderChallenges() {
   const activeYears = [...new Set(players.map(p => p.year))].sort((a,b)=>a-b);
   const filtered = showAllYears ? CHALLENGES : CHALLENGES.filter(c => activeYears.includes(c.year));
   const list = document.getElementById('challenges-list');
   list.innerHTML = filtered.map(c => {
     const who = players.filter(p => p.year === c.year).map(p => `${p.emoji} ${p.name}`).join(', ');
-    return `
-      <div class="challenge-group">
-        <div class="ch-header">
-          <span>Année ${c.year}</span>
-          <span class="ch-cards">${c.cards} cartes</span>
-          ${who ? `<span class="ch-who">${who}</span>` : ''}
-        </div>
+    return `<div class="challenge-group">
+        <div class="ch-header"><span>Année ${c.year}</span><span class="ch-cards">${c.cards} cartes</span>${who?`<span class="ch-who">${who}</span>`:''}</div>
         <div class="ch-body">${c.desc}</div>
       </div>`;
   }).join('');
-  if (filtered.length === 0)
-    list.innerHTML = '<p style="text-align:center;color:#aaa;padding:1.5rem;font-weight:700;">Aucun défi à afficher</p>';
+  if (!filtered.length) list.innerHTML = '<p style="text-align:center;color:#aaa;padding:1.5rem;font-weight:700;">Aucun défi à afficher</p>';
 }
 
 // ── LEADERBOARD ──
@@ -537,11 +817,11 @@ function renderLeaderboard() {
     </div>`).join('');
 }
 
-// ── WIN + CELEBRATION ──
+// ── WIN ──
 function showWin() {
+  stopPolling();
   const sorted = [...players].sort((a,b) => b.year!==a.year ? b.year-a.year : a.totalPts-b.totalPts);
-  document.getElementById('game-wrapper').style.display = 'none';
-  document.getElementById('win-screen').style.display = 'block';
+  showOnly('win-screen');
   const w = sorted[0];
   document.getElementById('win-name').textContent = `${w.emoji} ${w.name} a gagné !`;
   const ranks = ['🥇','🥈','🥉'];
@@ -553,105 +833,40 @@ function showWin() {
   startCelebration();
 }
 
-// ── CELEBRATION (CONFETTI + FIREWORKS) ──
+// ── CELEBRATION ──
 function startCelebration() {
   const canvas = document.getElementById('celebration-canvas');
   const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
   const COLORS = ['#f4a261','#2d6a4f','#52b788','#e76f51','#457b9d','#ffd166','#a8dadc','#e63946'];
   const particles = [];
-
-  // Confetti pieces
   for (let i = 0; i < 160; i++) {
-    particles.push({
-      type: 'confetti',
-      x: Math.random() * canvas.width,
-      y: -20 - Math.random() * canvas.height * 0.5,
-      w: 8 + Math.random() * 10,
-      h: 4 + Math.random() * 6,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      vx: (Math.random() - 0.5) * 3,
-      vy: 2 + Math.random() * 4,
-      angle: Math.random() * Math.PI * 2,
-      spin: (Math.random() - 0.5) * 0.2,
-      alpha: 1,
-    });
+    particles.push({ x:Math.random()*canvas.width, y:-20-Math.random()*canvas.height*.5,
+      w:8+Math.random()*10, h:4+Math.random()*6, color:COLORS[Math.floor(Math.random()*COLORS.length)],
+      vx:(Math.random()-.5)*3, vy:2+Math.random()*4, angle:Math.random()*Math.PI*2,
+      spin:(Math.random()-.5)*.2, alpha:1 });
   }
-
-  // Firework bursts
   const fireworks = [];
   function launchFirework() {
-    const fx = canvas.width * (0.2 + Math.random() * 0.6);
-    const fy = canvas.height * (0.1 + Math.random() * 0.35);
-    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    for (let i = 0; i < 48; i++) {
-      const angle = (i / 48) * Math.PI * 2;
-      const speed = 3 + Math.random() * 5;
-      fireworks.push({
-        x: fx, y: fy,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        color, alpha: 1,
-        size: 2 + Math.random() * 2,
-      });
-    }
+    const fx=canvas.width*(.2+Math.random()*.6), fy=canvas.height*(.1+Math.random()*.35);
+    const color=COLORS[Math.floor(Math.random()*COLORS.length)];
+    for(let i=0;i<48;i++){const angle=(i/48)*Math.PI*2,speed=3+Math.random()*5;
+      fireworks.push({x:fx,y:fy,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,color,alpha:1,size:2+Math.random()*2});}
   }
-
-  // Launch fireworks at intervals
-  let fwCount = 0;
-  const fwInterval = setInterval(() => {
-    launchFirework();
-    fwCount++;
-    if (fwCount >= 6) clearInterval(fwInterval);
-  }, 500);
-  launchFirework(); // immediate first one
-
-  let frame = 0;
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw confetti
-    particles.forEach(p => {
-      ctx.save();
-      ctx.globalAlpha = p.alpha;
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.angle);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-      ctx.restore();
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.07;
-      p.angle += p.spin;
-      if (p.y > canvas.height + 20) p.alpha = 0;
-    });
-
-    // Draw firework sparks
-    fireworks.forEach(f => {
-      ctx.save();
-      ctx.globalAlpha = f.alpha;
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
-      ctx.fillStyle = f.color;
-      ctx.fill();
-      ctx.restore();
-      f.x += f.vx;
-      f.y += f.vy;
-      f.vy += 0.12;
-      f.vx *= 0.97;
-      f.alpha -= 0.018;
-    });
-
+  let fwCount=0;
+  const fwInterval=setInterval(()=>{launchFirework();fwCount++;if(fwCount>=6)clearInterval(fwInterval);},500);
+  launchFirework();
+  let frame=0;
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.angle);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.angle+=p.spin;if(p.y>canvas.height+20)p.alpha=0;});
+    fireworks.forEach(f=>{ctx.save();ctx.globalAlpha=f.alpha;ctx.beginPath();ctx.arc(f.x,f.y,f.size,0,Math.PI*2);
+      ctx.fillStyle=f.color;ctx.fill();ctx.restore();f.x+=f.vx;f.y+=f.vy;f.vy+=.12;f.vx*=.97;f.alpha-=.018;});
     frame++;
-    // Stop after ~5 seconds (300 frames at 60fps)
-    const alive = particles.some(p => p.alpha > 0) || fireworks.some(f => f.alpha > 0);
-    if (frame < 360 || alive) {
-      requestAnimationFrame(animate);
-    } else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    if(frame<360||particles.some(p=>p.alpha>0)||fireworks.some(f=>f.alpha>0))requestAnimationFrame(animate);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
   }
   animate();
 }
@@ -659,23 +874,20 @@ function startCelebration() {
 // ── RESET ──
 function confirmReset() { if(confirm('Recommencer une nouvelle partie ?')) resetGame(); }
 function resetGame() {
-  // Clear celebration canvas
-  const canvas = document.getElementById('celebration-canvas');
-  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-  document.getElementById('win-screen').style.display = 'none';
-  document.getElementById('game-wrapper').style.display = 'none';
-  document.getElementById('setup').style.display = 'block';
+  stopPolling(); sessionCode=null; myPlayerId=null;
+  const canvas=document.getElementById('celebration-canvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  showHome();
 }
 
 // ── TOAST ──
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
 selectCount(4);
+selectCountOnline(4);
 </script>
 </body>
 </html>
