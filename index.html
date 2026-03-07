@@ -658,6 +658,7 @@ async function saveMyPts() {
 }
 
 async function toggleMyOpen() {
+  alert('toggleMyOpen appelé! myPlayerId=' + myPlayerId + ' sessionCode=' + sessionCode);
   if (!sessionCode || myPlayerId === null) return;
   // Mise à jour optimiste locale immédiate
   players[myPlayerId].opened = !players[myPlayerId].opened;
