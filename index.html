@@ -543,21 +543,20 @@ function startPollingHost() {
     try {
       const res = await fetch(`${WORKER_URL}/session/${sessionCode}`);
       const state = await res.json();
-      // Garder les valeurs locales seulement si elles diffèrent du serveur
-      // (l'hôte a fait une modif pas encore confirmée par le serveur)
       const localOpened = players.map(p => p.opened);
-      const localRoundPts = players.map(p => p.roundPts);
-      applyState(state);
-      players.forEach((p, i) => {
-        // Préserver opened local seulement s'il est true et serveur dit false
-        // (évite d'écraser un ouvert fait par le joueur distant)
-        if (localOpened[i] && !state.players[i].opened) p.opened = localOpened[i];
-        // Préserver roundPts local seulement si l'hôte a tapé quelque chose
-        // et que le serveur n'a pas encore reçu la mise à jour
-        if (localRoundPts[i] && !state.players[i].roundPts) p.roundPts = localRoundPts[i];
-      });
+      // Identifier quel input l'hôte est en train de modifier
       const active = document.activeElement;
       const isTyping = active && active.classList.contains('pts-input');
+      const activeId = isTyping ? active.id : null; // ex: "pts-2"
+      const activeIdx = activeId ? parseInt(activeId.split('-')[1]) : -1;
+      const activeVal = isTyping ? (parseInt(active.value) || 0) : 0;
+      applyState(state);
+      players.forEach((p, i) => {
+        // Préserver opened local seulement si local=true et serveur=false
+        if (localOpened[i] && !state.players[i].opened) p.opened = localOpened[i];
+        // Préserver roundPts seulement pour l'input actif
+        if (i === activeIdx) p.roundPts = activeVal;
+      });
       if (!isTyping) renderGame();
     } catch(e) {}
   }, 3000);
