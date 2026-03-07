@@ -378,9 +378,9 @@ function renderGame() {
           </div>
         </div>
         <div class="pc-stats">
-          <div class="stat-box">
-            <div class="stat-label">Points total</div>
-            <div class="stat-value">${p.totalPts}</div>
+          <div class="stat-box" onclick="editTotalPts(${i})" title="Cliquer pour modifier" style="cursor:pointer">
+            <div class="stat-label">Points total ✏️</div>
+            <div class="stat-value" id="pts-total-${i}">${p.totalPts}</div>
           </div>
         </div>
         <input class="pts-input" id="pts-${i}" type="number" min="0"
@@ -405,7 +405,36 @@ function adjustYear(i, delta) {
   renderGame();
 }
 
-// ── TOGGLE OPEN ──
+// ── EDIT TOTAL POINTS ──
+function editTotalPts(i) {
+  const el = document.getElementById(`pts-total-${i}`);
+  if (!el) return;
+  const current = players[i].totalPts;
+  el.innerHTML = `<input id="pts-total-input-${i}" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+    value="${current}" style="width:80px;font-family:'Fredoka One',cursive;font-size:1.1rem;text-align:center;
+    border:2px solid var(--yellow);border-radius:8px;padding:.2rem .4rem;outline:none;color:var(--text);"
+    onblur="confirmTotalPts(${i})"
+    onkeydown="if(event.key==='Enter') confirmTotalPts(${i}); if(event.key==='Escape') cancelTotalPts(${i}, ${current})">`;
+  const input = document.getElementById(`pts-total-input-${i}`);
+  input.focus();
+  input.select();
+}
+
+function confirmTotalPts(i) {
+  const input = document.getElementById(`pts-total-input-${i}`);
+  if (!input) return;
+  const val = parseInt(input.value);
+  if (!isNaN(val) && val >= 0) players[i].totalPts = val;
+  const el = document.getElementById(`pts-total-${i}`);
+  if (el) el.innerHTML = players[i].totalPts;
+}
+
+function cancelTotalPts(i, original) {
+  const el = document.getElementById(`pts-total-${i}`);
+  if (el) el.innerHTML = original;
+}
+
+
 function toggleOpen(i) {
   saveInputs();
   players[i].opened = !players[i].opened;
